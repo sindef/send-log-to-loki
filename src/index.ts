@@ -10,6 +10,7 @@ async function sendLog(): Promise<void> {
   const lokiAddress = core.getInput("loki_address");
   const lokiUsername = core.getInput("loki_username");
   const lokiPassword = core.getInput("loki_password");
+  const lokiTenantId = core.getInput("loki_tenant"); // Support for multitenancy (https://grafana.com/docs/loki/latest/operations/multi-tenancy/) through the X-Scope-OrgID header
   const labelsInput = core.getInput("labels") || "{}";
   const timeFilePath = path.join(
     process.env.GITHUB_WORKSPACE || "",
@@ -77,7 +78,7 @@ async function sendLog(): Promise<void> {
       `${lokiAddress}/loki/api/v1/push`,
       logEntry,
       {
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Scope-OrgID": lokiTenantId },
         auth: { username: lokiUsername, password: lokiPassword },
       }
     );
